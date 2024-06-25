@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,6 +19,7 @@ class _HomePage extends State<HomePage>{
   int _goodreceipt = 0;
   List<Map<String, dynamic>> data = [];
   late String username = '';
+  late String accessToken = '';
 
    @override
   void initState() {
@@ -27,7 +27,7 @@ class _HomePage extends State<HomePage>{
     _fetchDeliveryCount();
     _fetchActiveDelivery();
     _fetchGoodReceiptCount();
-    _getUsername();
+    _getUsernameAndToken();
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
       if (mounted){
       _fetchDeliveryCount();
@@ -37,10 +37,11 @@ class _HomePage extends State<HomePage>{
     });
   }
 
-  Future<void> _getUsername() async {
+  Future<void> _getUsernameAndToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username') ?? 'User';
+      accessToken = prefs.getString('access_token') ?? '';
     });
   }
 
@@ -51,7 +52,11 @@ class _HomePage extends State<HomePage>{
   }
 
   Future<void> _fetchDeliveryCount() async {
-    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/Delivery'));
+    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/Delivery'),
+    headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
      if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       setState(() {
@@ -65,7 +70,11 @@ class _HomePage extends State<HomePage>{
   }
 
     Future<void> _fetchGoodReceiptCount() async {
-    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/GoodReceipt'));
+    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/GoodReceipt'),
+    headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       setState(() {
@@ -79,7 +88,11 @@ class _HomePage extends State<HomePage>{
   }
 
   Future<void> _fetchActiveDelivery() async {
-    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/ActiveDelivery'));
+    final response = await http.get(Uri.parse('http://10.14.90.223:44/api/ActiveDelivery'),
+    headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
     if (response.statusCode == 200) {
       final String jsonString = response.body;
       final Map<String, dynamic> responseData = jsonDecode(jsonString);

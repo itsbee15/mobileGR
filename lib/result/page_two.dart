@@ -1,7 +1,9 @@
+import 'package:first_flutter_project/controller/api_service.dart';
 import 'package:first_flutter_project/model/model_surat_jalan.dart';
 import 'package:first_flutter_project/pages/qr_tag.dart';
 import 'package:first_flutter_project/result/page_three.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageTwo extends StatefulWidget {
   String qrTagNumber;
@@ -15,16 +17,34 @@ class PageTwo extends StatefulWidget {
 
 class _PageTwoState extends State<PageTwo> {
   List<Map<String, dynamic>> data = [];
+  String? accessToken;
 
 @override
   void initState() {
     super.initState();
-    _addData({
-      'no_qr_tag': '',
-      'material_code': widget.qrTagNumber.split('|')[2],
-      'quantity': widget.qrTagNumber.split('|')[3],
-      'quantity_ng': '', // Initial value for QTY NG, you can adjust this as needed
+    _loadAccessToken();
+    _fetchData();
+    
+  }
+
+  Future<void> _loadAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      accessToken = prefs.getString('access_token');
     });
+  }
+
+  Future<void> _fetchData() async {
+    // if (accessToken != null) {
+    //   // Fetch data from the API if needed
+    //   final fetchedData = await ApiService.fetchData(widget.selectedSuratJalan, accessToken);
+    //   setState(() {
+    //     data = fetchedData;
+    //   });
+    // } else {
+    //   // Handle case when access token is not available
+    //   print("Access token is not available.");
+    // }
   }
 
   Future<void> _showEditDialog(BuildContext context, String initialValue, Function(String) onChanged) async {
@@ -33,7 +53,7 @@ class _PageTwoState extends State<PageTwo> {
       builder: (BuildContext context) {
         String newValue = initialValue;
         return AlertDialog(
-          title: Text('New Value'),
+          title: const Text('New Value'),
           content: TextFormField(
             initialValue: initialValue,
             onChanged: (value) {
@@ -45,13 +65,13 @@ class _PageTwoState extends State<PageTwo> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(newValue);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -82,9 +102,9 @@ class _PageTwoState extends State<PageTwo> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color.fromARGB(255, 23, 41, 86),
+        backgroundColor: const Color.fromARGB(255, 23, 41, 86),
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Scan GR Incoming",
           style: TextStyle(
             color: Colors.white,
@@ -103,9 +123,9 @@ class _PageTwoState extends State<PageTwo> {
                 padding: const EdgeInsets.all(16),
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(109, 187, 187, 187),
+                    color: const Color.fromARGB(109, 187, 187, 187),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -114,7 +134,7 @@ class _PageTwoState extends State<PageTwo> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +154,7 @@ class _PageTwoState extends State<PageTwo> {
                                 children: [
                                   Text(
                                     widget.selectedSuratJalan.ShipmentLetterCodeAndCounter,
-                                    style: TextStyle(fontSize: 12, color: Colors.black),
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
                                   ),
                                 ],
                               ),
@@ -152,7 +172,7 @@ class _PageTwoState extends State<PageTwo> {
               Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15),
                 child: DataTable(
-                  dataTextStyle: TextStyle(fontSize: 10),
+                  dataTextStyle: const TextStyle(fontSize: 10),
                   columnSpacing: 10,
                   horizontalMargin: 2,
                   columns: const <DataColumn>[
@@ -203,11 +223,9 @@ class _PageTwoState extends State<PageTwo> {
                                   iconSize: 20,
                                   icon: Icon(Icons.edit),
                                   onPressed: () {
-                                    _showEditDialog(context, widget.qrTagNumber.split('|').elementAt(3), (newValue) {
+                                    _showEditDialog(context,data[index]['quantity'], (newValue) {
                                       setState(() {
-                                        List<String> newQrTagNumber = widget.qrTagNumber.split('|');
-                                        newQrTagNumber[3] = newValue;
-                                        widget.qrTagNumber = newQrTagNumber.join('|');
+                                        data[index]['quantity'] = newValue;
                                       
                                     });
                                   });
@@ -274,30 +292,30 @@ class _PageTwoState extends State<PageTwo> {
                 ),
               ),
               ),
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(
-                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 23, 41, 86))),
+                    style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 23, 41, 86))),
                     onPressed: () {
                       // Pindah ke halaman send to SAP
-                      Map<String, dynamic> previousData = {
-                          'items': data,
-                        };
+                      Map<String, dynamic> previousData = 
+                      {'items': data};
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> PageThree(previousData: previousData, selectedSuratJalan: widget.selectedSuratJalan,)));
                     },
-                    child: Text('Save', style: TextStyle(color: Colors.white),),
+                    child: const Text('Save', style: TextStyle(color: Colors.white),),
                   ),
                   TextButton(
-                    style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 23, 41, 86))),
+                    style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 23, 41, 86))),
                     onPressed: () {
                       // Pindah ke halaman scan
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> QRTag(onScan: (String osNumber) {}, selectedSuratJalan: widget.selectedSuratJalan))).then((result) {
                         if (result != null) {
                           setState(() {
+                            widget.qrTagNumber = result;
                             // Menambahkan data QR Tag yang baru discan
                               _addData({
                                 'no_qr_tag': result.split('|')[0],

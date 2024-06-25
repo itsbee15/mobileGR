@@ -19,9 +19,9 @@ class _PageThreeState extends State<PageThree> {
 
     Map<String, dynamic> quantityMap = {};
     final SAPService sapService = SAPService(
-    'http://aoph1qappdc.aop.oto:8020',  // Ganti dengan URL dasar API SAP Anda.
-    'SAP_API',       // Ganti dengan username Basic Auth Anda.
-    'A-Otop@rts123',       // Ganti dengan password Basic Auth Anda.
+    'http://aoph1qappdc.aop.oto:8020', 
+    'SAP_API',       
+    'A-Otop@rts123', 
   );
 
     @override
@@ -67,11 +67,13 @@ class _PageThreeState extends State<PageThree> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => GRSuccess(previousData: widget.previousData, quantityMap: quantityMap, selectedSuratJalan: widget.selectedSuratJalan,)));
     } else {
       // Tampilkan pesan kesalahan.
-      Navigator.push(context, MaterialPageRoute(builder: (context) => GRFailed(selectedSuratJalan: widget.selectedSuratJalan,)));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Gagal mengirim data ke SAP'),
+      ));
     }
   } catch (e) {
     // Tangani kesalahan lain, misalnya kesalahan jaringan.
-    throw Exception('Failed to load data to SAP');
+    Navigator.push(context, MaterialPageRoute(builder: (context) => GRFailed(selectedSuratJalan: widget.selectedSuratJalan,)));
   }
 }
 

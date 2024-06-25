@@ -2,6 +2,7 @@ import 'package:first_flutter_project/model/model_surat_jalan.dart';
 import 'package:first_flutter_project/pages/qr_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:first_flutter_project/controller/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SuratJalan extends StatefulWidget {
   final List<NoSuratJalan> suratJalanList;
@@ -69,8 +70,15 @@ NoSuratJalan? selectedSuratJalan;
     );
   }
 
-  void _handleScan(String OSNumber) {
-    ApiService.fetchSuratJalan(OSNumber).then((list) {
+  void _handleScan(String OSNumber) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('access_token');
+
+    if (accessToken == null) {
+      // Handle the case when access token is not available
+      throw Exception('Access token not found');
+    }
+    ApiService.fetchSuratJalan(OSNumber, accessToken).then((list) {
       setState(() {
         nosuratjalanList = list;
       });

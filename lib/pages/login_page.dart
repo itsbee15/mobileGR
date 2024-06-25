@@ -3,7 +3,6 @@ import 'package:first_flutter_project/pages/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -21,31 +20,38 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
 Future<void> _login() async {
-  print("Username: ${usernameController.text}");
-  print("Password: ${passwordController.text}");
+  final String username = usernameController.text;
+  final String password = passwordController.text;
+  final String grant_type = 'password';
 
-    final response = await http.post(
-      Uri.parse('http://10.14.90.223:44/api/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'username': usernameController.text,
-        'password': passwordController.text,
-      }),
-    );
-
-    print("Response status: ${response.statusCode}");
-    print("Response body: ${response.body}");
-
-    if (response.statusCode == 200) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', usernameController.text);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomeScreen()),
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.14.90.223:44/api/Login'),
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'username=${Uri.encodeComponent(username)}&password=${Uri.encodeComponent(password)}&grant_type=${Uri.encodeComponent(grant_type)}',
       );
-    } else {
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final accessToken = data['access_token'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', accessToken);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Invalid username or password'),
+        ));
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Invalid username or password'),
+        content: Text('Login failed: $e'),
       ));
     }
   }
