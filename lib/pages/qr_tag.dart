@@ -79,17 +79,19 @@ class _QRTagState extends State<QRTag> {
           drawer: const Drawer(),
           appBar: AppBar(
             actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  String qrTagNumber = _textFieldController.text;
-                  _handleScan(qrTagNumber, model);
-                },
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
+              _textFieldController.text.length < 10
+                  ? const SizedBox()
+                  : TextButton(
+                      onPressed: () {
+                        String qrTagNumber = _textFieldController.text;
+                        _handleScan(qrTagNumber, model);
+                      },
+                      child: const Text(
+                        'Done',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
             ],
             iconTheme: const IconThemeData(color: Colors.black87),
             automaticallyImplyLeading: false,
@@ -140,7 +142,7 @@ class _QRTagState extends State<QRTag> {
                                   MaterialStatePropertyAll(Colors.grey[300]),
                             ),
                           ),
-                          SizedBox(width: 15),
+                          SizedBox(width: 5),
                           IconButton(
                             onPressed: () {
                               Navigator.push(
@@ -159,7 +161,6 @@ class _QRTagState extends State<QRTag> {
                           ),
                         ],
                       )),
-                  SizedBox(height: 20),
                   Text(
                     "Scan QR code here",
                     style: TextStyle(
@@ -227,9 +228,9 @@ class _QRTagState extends State<QRTag> {
                           QRScannerOverlay(overlayColor: Colors.transparent),
                         ],
                       )),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 10),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    margin: EdgeInsets.symmetric(horizontal: 30),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -245,6 +246,11 @@ class _QRTagState extends State<QRTag> {
                           controller: _textFieldController,
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 12),
+                          onChanged: (v) {
+                            setState(() {
+                              _textFieldController.text = v;
+                            });
+                          },
                           decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsets.symmetric(vertical: 5),

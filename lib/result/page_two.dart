@@ -237,13 +237,14 @@ class _PageTwoState extends State<PageTwo> {
                                     iconSize: 20,
                                     icon: Icon(Icons.edit),
                                     onPressed: () {
-                                      // _showEditDialog(
-                                      //     context, data[index]['quantity'],
-                                      //     (newValue) {
-                                      //   setState(() {
-                                      //     data[index]['quantity'] = newValue;
-                                      //   });
-                                      // });
+                                      _showEditDialog(
+                                          context, tag.split('|')[3],
+                                          (newValue) {
+                                        model.modifyQTY(
+                                            tag,
+                                            tag.replaceFirst(
+                                                tag.split('|')[3], newValue));
+                                      });
                                     },
                                   ),
                                 ],
@@ -257,13 +258,16 @@ class _PageTwoState extends State<PageTwo> {
                                     iconSize: 20,
                                     icon: Icon(Icons.edit),
                                     onPressed: () {
-                                      // _showEditDialog(
-                                      //     context, data[index]['quantity_ng'],
-                                      //     (newValue) {
-                                      //   setState(() {
-                                      //     data[index]['quantity_ng'] = newValue;
-                                      //   });
-                                      // });
+                                      _showEditDialog(
+                                          context, "0", //tag.split('|')[4]
+                                          // QR perlu tempatkan value QTY NG di split string "|" setelah QTY
+                                          //
+                                          (newValue) {
+                                        // model.modifyQTY(
+                                        //     tag,
+                                        //     tag.replaceFirst(
+                                        //         tag.split('|')[3], newValue));
+                                      });
                                     },
                                   ),
                                 ],
@@ -272,7 +276,8 @@ class _PageTwoState extends State<PageTwo> {
                             DataCell(
                               IconButton(
                                 iconSize: 20,
-                                icon: Icon(Icons.clear),
+                                icon:
+                                    const Icon(Icons.clear, color: Colors.red),
                                 onPressed: () {
                                   // Tampilkan dialog konfirmasi sebelum menghapus
                                   showDialog(
@@ -294,6 +299,7 @@ class _PageTwoState extends State<PageTwo> {
                                           ),
                                           TextButton(
                                             onPressed: () {
+                                              model.removeQRtag(tag);
                                               // _deleteRow(index);
                                               Navigator.of(context).pop();
                                             },
@@ -322,29 +328,33 @@ class _PageTwoState extends State<PageTwo> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: model.tagList.isEmpty
+                        ? MainAxisAlignment.center
+                        : MainAxisAlignment.spaceEvenly,
                     children: [
-                      TextButton(
-                        style: const ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Color.fromARGB(255, 23, 41, 86))),
-                        onPressed: () {
-                          // Pindah ke halaman send to SAP
-                        // Map<String, dynamic> previousData = model.tag;
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PageThree(
-                                        model: model,
-                                        selectedSuratJalan:
-                                            widget.selectedSuratJalan,
-                                      )));
-                        },
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                      model.tagList.isEmpty
+                          ? const SizedBox()
+                          : TextButton(
+                              style: const ButtonStyle(
+                                  backgroundColor: MaterialStatePropertyAll(
+                                      Color.fromARGB(255, 23, 41, 86))),
+                              onPressed: () {
+                                // Pindah ke halaman send to SAP
+                                // Map<String, dynamic> previousData = model.tag;
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PageThree(
+                                              model: model,
+                                              selectedSuratJalan:
+                                                  widget.selectedSuratJalan,
+                                            )));
+                              },
+                              child: const Text(
+                                'Save',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
                       TextButton(
                         style: const ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll(

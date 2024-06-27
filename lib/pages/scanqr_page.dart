@@ -50,7 +50,7 @@ class _ScanQrPageState extends State<ScanQrPage> {
       );
     } catch (error) {
       // Handle error
-      print("Failed to fetch Surat Jalan: $error");
+      print("Gagal mendapatkan nomor OS");
     }
   }
 
@@ -61,23 +61,25 @@ class _ScanQrPageState extends State<ScanQrPage> {
       drawer: const Drawer(),
       appBar: AppBar(
         actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              _handleScan(_textFieldController.text);
-            },
-            child: Text(
-              'Done',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
+          _textFieldController.text.length < 6
+              ? SizedBox()
+              : TextButton(
+                  onPressed: () {
+                    _handleScan(_textFieldController.text);
+                  },
+                  child: Text(
+                    'Done',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
         ],
         iconTheme: IconThemeData(color: Colors.black87),
         automaticallyImplyLeading: false,
         backgroundColor: Color.fromARGB(255, 23, 41, 86),
         centerTitle: true,
         title: Text(
-          "Order Sheet",
+          "Scan OS",
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -87,114 +89,122 @@ class _ScanQrPageState extends State<ScanQrPage> {
         ),
       ),
       body: Container(
-        width: 300,
-        margin: EdgeInsets.only(left: 30),
-        child: Column(
-          children: [
-            Positioned(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isFlashOn = !isFlashOn;
-                      });
-                      controller.toggleTorch();
-                    },
-                    icon: Icon(
-                      Icons.flash_on,
-                      color: isFlashOn ? Colors.blue : Colors.grey[800],
-                    ),
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll(Colors.grey[300])),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => FAQPage()));
-                    },
-                    icon: Icon(
-                      Icons.question_answer,
-                      color: Colors.grey[800],
-                    ),
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll(Colors.grey[300])),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Scan Order Sheet here",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Stack(
-                children: [
-                  MobileScanner(
-                    controller: controller,
-                    allowDuplicates: true,
-                    onDetect: (barcode, args) {
-                      if (!isScanCompleted) {
-                        _textFieldController.text = barcode.rawValue ?? '---';
-                        isScanCompleted = true;
-                      }
-                    },
-                  ),
-                  QRScannerOverlay(overlayColor: Colors.transparent),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Flexible(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    " No. Order Sheet",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextField(
-                    controller: _textFieldController,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 2.0),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+        margin: const EdgeInsets.only(left: 0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isFlashOn = !isFlashOn;
+                          });
+                          controller.toggleTorch();
+                        },
+                        icon: Icon(
+                          Icons.flash_on,
+                          color: isFlashOn ? Colors.blue : Colors.grey[800],
                         ),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.grey[300]),
                         ),
-                        borderRadius: BorderRadius.circular(5),
                       ),
-                      hintText: 'Input order sheet number here',
-                    ),
-                  ),
-                ],
+                      SizedBox(width: 5),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => FAQPage()));
+                        },
+                        icon: Icon(
+                          Icons.question_answer,
+                          color: Colors.grey[800],
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.grey[300]),
+                        ),
+                      ),
+                    ],
+                  )),
+              Text(
+                "Scan Order Sheet here",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Container(
+                width: 300,
+                height: 300,
+                child: Stack(
+                  children: [
+                    MobileScanner(
+                      controller: controller,
+                      allowDuplicates: true,
+                      onDetect: (barcode, args) {
+                        if (!isScanCompleted) {
+                          _textFieldController.text = barcode.rawValue ?? '---';
+                          isScanCompleted = true;
+                        }
+                      },
+                    ),
+                    QRScannerOverlay(overlayColor: Colors.transparent),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      " No. Order Sheet",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextField(
+                      controller: _textFieldController,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12),
+                      onChanged: (v){
+                        setState(() {
+                          _textFieldController.text = v;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(vertical: 2.0),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        hintText: 'Input order sheet number here',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
